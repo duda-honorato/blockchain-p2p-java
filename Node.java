@@ -1,15 +1,17 @@
+//implementa um no da rede blockchain, capaz de relacionar as conexoes e msg a outros nos
 import java.net.*;
 import java.io.*;
 
 public class Node extends Thread {
     private ServerSocket server;
-    private Blockchain blockchain;
+    private Blockchain blockchain; // ref - blockchain
 
     public Node(Blockchain blockchain, int port) throws IOException {
         this.server = new ServerSocket(port);
         this.blockchain = blockchain;
     }
 
+    //fica aceitando as conexoes e lendo msg
     public void run() {
         while (true) {
             try {
@@ -26,7 +28,7 @@ public class Node extends Thread {
             }
         }
     }
-
+    //encia msg para outros nos
     public void sendMessage(String ip, int port, String message) {
         try {
             Socket socket = new Socket(ip, port);
