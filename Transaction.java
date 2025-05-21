@@ -1,3 +1,4 @@
+//Representa uma transação entre dois participantes
 public class Transaction {
     public String sender;
     public String receiver;
@@ -8,7 +9,7 @@ public class Transaction {
         this.receiver = receiver;
         this.amount = amount;
     }
-
+    //representação da transação, usada para gerar o hash do bloco
     public String toString() {
         return sender + " -> " + receiver + " (" + amount + ")";
     }
