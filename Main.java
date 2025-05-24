@@ -1,26 +1,42 @@
-import java.util.Scanner;
+import java.util.*;
+import com.google.gson.Gson;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        if (args.length < 2) {
-            System.out.println("Uso: java Main <IP_DESTINO> <PORTA>");
+        if (args.length < 3) {
+            System.out.println("Uso: java Main <MINHA_PORTA> <DESTINOS> <MODO>");
+            System.out.println("Ex: java Main 5000 10.147.18.12:5001,10.147.18.13:5002 miner");
             return;
         }
 
-        String destinoIP = args[0];
-        int porta = Integer.parseInt(args[1]);
-        int minhaPorta = 5000; // Porta local para escutar
+        int minhaPorta = Integer.parseInt(args[0]);
+        String[] peers = args[1].split(",");
+        String modo = args[2]; // "miner" ou "client"
 
         Blockchain blockchain = new Blockchain();
         Node node = new Node(blockchain, minhaPorta);
-        node.start(); // Inicia o servidor que escuta
+        for (String peer : peers) node.addPeer(peer);
+        node.start();
 
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Digite mensagens para enviar para o outro nó:");
+        Gson gson = new Gson();
 
-        while (true) {
-            String msg = scanner.nextLine();
-            node.sendMessage(destinoIP, porta, msg);
+        if (modo.equals("client")) {
+            while (true) {
+                System.out.print("Nova transação (formato: A,B,50): ");
+                String[] partes = scanner.nextLine().split(",");
+                Transaction tx = new Transaction(partes[0], partes[1], Integer.parseInt(partes[2]));
+                blockchain.addTransaction(tx);
+                node.broadcast("TX|" + gson.toJson(tx));
+            }
+        } else if (modo.equals("miner")) {
+            while (true) {
+                System.out.println("Minerando transações pendentes...");
+                blockchain.minePendingTransactions();
+                Block novo = blockchain.getLatestBlock();
+                node.broadcast("BLOCK|" + gson.toJson(novo));
+                blockchain.printChain();
+            }
         }
     }
 }
