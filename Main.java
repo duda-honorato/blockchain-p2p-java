@@ -1,16 +1,26 @@
+import java.util.Scanner;
+
 public class Main {
     public static void main(String[] args) throws Exception {
-        Blockchain bc = new Blockchain();
+        if (args.length < 2) {
+            System.out.println("Uso: java Main <IP_DESTINO> <PORTA>");
+            return;
+        }
 
-        Node node = new Node(bc, 5000); // Porta do servidor
-        node.start();
+        String destinoIP = args[0];
+        int porta = Integer.parseInt(args[1]);
+        int minhaPorta = 5000; // Porta local para escutar
 
-        // Exemplo de transação e mineração
-        bc.addTransaction(new Transaction("Alice", "Bob", 10));
-        bc.minePendingTransactions();
-        bc.printChain();
+        Blockchain blockchain = new Blockchain();
+        Node node = new Node(blockchain, minhaPorta);
+        node.start(); // Inicia o servidor que escuta
 
-        // Exemplo de envio de mensagem
-        // node.sendMessage("192.168.x.x", 5000, "Hello, I'm alive");
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Digite mensagens para enviar para o outro nó:");
+
+        while (true) {
+            String msg = scanner.nextLine();
+            node.sendMessage(destinoIP, porta, msg);
+        }
     }
 }
